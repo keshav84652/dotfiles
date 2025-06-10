@@ -1,7 +1,7 @@
 [user]
     # Will be set by setup script
-    name = YOUR_NAME
-    email = YOUR_EMAIL
+    name = keshav84652
+    email = keshavkasat@outlook.com
 
 [init]
     defaultBranch = main
