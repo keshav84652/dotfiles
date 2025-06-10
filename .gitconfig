@@ -1,0 +1,131 @@
+[user]
+    # Will be set by setup script
+    name = YOUR_NAME
+    email = YOUR_EMAIL
+
+[init]
+    defaultBranch = main
+
+[core]
+    editor = vim
+    autocrlf = input
+    pager = less -FRX
+    excludesfile = ~/.gitignore_global
+
+[color]
+    ui = auto
+    branch = auto
+    diff = auto
+    status = auto
+
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+    whitespace = red reverse
+
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = cyan
+
+[alias]
+    # Basic shortcuts
+    st = status
+    co = checkout
+    br = branch
+    ci = commit
+    df = diff
+    dc = diff --cached
+    
+    # Logging
+    lg = log --oneline --graph --decorate --all
+    lga = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+    last = log -1 HEAD
+    ll = log --pretty=format:"%C(yellow)%h%Cred%d\\ %Creset%s%Cblue\\ [%cn]" --decorate --numstat
+    
+    # Staging
+    unstage = reset HEAD --
+    stage = add
+    
+    # Branching
+    new = checkout -b
+    
+    # Stashing
+    save = stash save
+    pop = stash pop
+    
+    # Show files ignored by git
+    ignored = ls-files --exclude-standard --ignored --others
+    
+    # Show git aliases
+    aliases = config --get-regexp alias
+    
+    # Amend the currently staged files to the latest commit
+    amend = commit --amend --reuse-message=HEAD
+    
+    # Show verbose output about tags, branches or remotes
+    tags = tag -l
+    branches = branch -a
+    remotes = remote -v
+    
+    # Credit an author on the latest commit
+    credit = "!f() { git commit --amend --author \"$1 <$2>\" -C HEAD; }; f"
+    
+    # Interactive rebase with the given number of latest commits
+    reb = "!r() { git rebase -i HEAD~$1; }; r"
+    
+    # Find branches containing commit
+    fb = "!f() { git branch -a --contains $1; }; f"
+    
+    # Find tags containing commit
+    ft = "!f() { git describe --always --contains $1; }; f"
+    
+    # Find commits by source code
+    fc = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short -S$1; }; f"
+    
+    # Find commits by commit message
+    fm = "!f() { git log --pretty=format:'%C(yellow)%h  %Cblue%ad  %Creset%s%Cgreen  [%cn] %Cred%d' --decorate --date=short --grep=$1; }; f"
+    
+    # List contributors with number of commits
+    contributors = shortlog --summary --numbered
+    
+    # Show the user email for the current repository
+    whoami = config user.email
+
+[push]
+    default = simple
+    followTags = true
+
+[pull]
+    rebase = false
+
+[merge]
+    tool = vimdiff
+
+[diff]
+    tool = vimdiff
+
+[rerere]
+    enabled = true
+
+[help]
+    autocorrect = 1
+
+[status]
+    showUntrackedFiles = all
+
+[transfer]
+    fsckobjects = true
+
+[fetch]
+    fsckobjects = true
+
+[receive]
+    fsckObjects = true

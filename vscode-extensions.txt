@@ -1,0 +1,71 @@
+# Essential VS Code Extensions
+# Install with: cat vscode-extensions.txt | xargs -L 1 code --install-extension
+
+# Python Development
+ms-python.python
+ms-python.vscode-pylance
+ms-python.flake8
+ms-python.black-formatter
+
+# JavaScript/TypeScript
+ms-vscode.vscode-typescript-next
+esbenp.prettier-vscode
+dbaeumer.vscode-eslint
+
+# Git Integration
+eamodio.gitlens
+mhutchie.git-graph
+donjayamanne.githistory
+
+# HTML/CSS/Web
+formulahendry.auto-rename-tag
+formulahendry.auto-close-tag
+bradlc.vscode-tailwindcss
+ritwickdey.liveserver
+
+# General Development
+ms-vscode.vscode-json
+redhat.vscode-yaml
+ms-vscode.hexeditor
+gruntfuggly.todo-tree
+
+# Appearance & Themes
+PKief.material-icon-theme
+zhuangtongfa.material-theme
+monokai.theme-monokai-pro-vscode
+
+# Productivity
+alefragnani.bookmarks
+ms-vscode.remote-containers
+ms-vscode.remote-ssh
+rangav.vscode-thunder-client
+
+# Markdown
+yzhang.markdown-all-in-one
+shd101wyy.markdown-preview-enhanced
+
+# Docker
+ms-azuretools.vscode-docker
+
+# Bracket Colorization (built into VS Code now, but good fallback)
+CoenraadS.bracket-pair-colorizer-2
+
+# Language Specific
+rust-lang.rust-analyzer
+ms-dotnettools.csharp
+golang.go
+
+# Database
+mtxr.sqltools
+
+# File Management
+christian-kohler.path-intellisense
+formulahendry.code-runner
+
+# Formatting
+esbenp.prettier-vscode
+ms-vscode.vscode-json
+
+# Miscellaneous
+vscodevim.vim
+ms-vscode.powershell
