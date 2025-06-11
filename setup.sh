@@ -556,10 +556,18 @@ if [[ "$CONFIGURE_SYSTEM" == "y" || "$CONFIGURE_SYSTEM" == "true" ]]; then
     
     # Touchpad gestures (if laptop)
     if is_laptop; then
-        print_status "Enabling touchpad gestures..."
+        print_status "Enabling touchpad gestures and smart features..."
         gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
         gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
-        gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll true
+        gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+        
+        # Smart features for better laptop experience
+        gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true
+        gsettings set org.gnome.desktop.peripherals.touchpad middle-click-emulation true
+        gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag true
+        gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag-lock false
+        
+        print_status "Touchpad optimized: tap-to-click, traditional scroll, palm rejection, 3-finger middle-click"
     fi
 fi
 
