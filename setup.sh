@@ -334,6 +334,32 @@ if [[ "$INSTALL_DEVELOPMENT" == "y" || "$INSTALL_DEVELOPMENT" == "true" ]] || [[
         else
             print_status "SSH key already exists."
         fi
+        
+        # Configure SSH known hosts for common Git services
+        print_status "Configuring SSH known hosts for Git services..."
+        mkdir -p ~/.ssh
+        chmod 700 ~/.ssh
+        
+        # Add GitHub to known hosts
+        if ! grep -q "github.com" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
+            print_status "Added GitHub to SSH known hosts"
+        fi
+        
+        # Add GitLab to known hosts
+        if ! grep -q "gitlab.com" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null
+            print_status "Added GitLab to SSH known hosts"
+        fi
+        
+        # Add Bitbucket to known hosts
+        if ! grep -q "bitbucket.org" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null
+            print_status "Added Bitbucket to SSH known hosts"
+        fi
+        
+        chmod 644 ~/.ssh/known_hosts
+        print_status "SSH known hosts configured for seamless Git operations"
     fi
 fi
 

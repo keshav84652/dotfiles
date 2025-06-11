@@ -118,6 +118,33 @@ if command_exists git; then
     git config --global log.oneline true
     git config --global log.abbrevCommit true
     echo "✓ Git log format optimized"
+    
+    # Configure SSH known hosts for Git services (if SSH directory exists)
+    if [ -d "$HOME/.ssh" ]; then
+        echo ""
+        echo -e "${YELLOW}SSH Configuration:${NC}"
+        
+        # Add GitHub to known hosts
+        if ! grep -q "github.com" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
+            echo "✓ Added GitHub to SSH known hosts"
+        fi
+        
+        # Add GitLab to known hosts  
+        if ! grep -q "gitlab.com" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null
+            echo "✓ Added GitLab to SSH known hosts"
+        fi
+        
+        # Add Bitbucket to known hosts
+        if ! grep -q "bitbucket.org" ~/.ssh/known_hosts 2>/dev/null; then
+            ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null
+            echo "✓ Added Bitbucket to SSH known hosts"
+        fi
+        
+        chmod 644 ~/.ssh/known_hosts 2>/dev/null
+        echo "✓ SSH known hosts configured for seamless Git operations"
+    fi
 else
     echo -e "${RED}✗ Git not found. This should be installed.${NC}"
 fi
