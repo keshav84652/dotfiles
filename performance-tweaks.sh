@@ -3,36 +3,49 @@
 # Performance Tweaks for Ubuntu Development Environment
 # Optimizes animations and system responsiveness
 
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+set -e  # Exit on any error
 
-echo -e "${BLUE}⚡ Applying Performance Tweaks...${NC}"
-echo ""
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/common-functions.sh" ]; then
+    source "$SCRIPT_DIR/common-functions.sh"
+else
+    echo "Error: common-functions.sh not found"
+    exit 1
+fi
+
+# Initialize logging
+init_log
+
+print_header "⚡ Performance Tweaks for Ubuntu Development"
+
+# Check system requirements
+if ! check_system_requirements; then
+    print_error "System requirements not met"
+    exit 1
+fi
+
+# Validate dependencies
+if ! validate_dependencies "performance-tweaks.sh" "gsettings"; then
+    print_error "Missing required dependencies"
+    add_manual_task "Install missing dependencies: gsettings (part of GNOME)"
+    finalize_log "Performance Tweaks"
+    exit 1
+fi
 
 # Faster animations
-echo -e "${YELLOW}Animation Settings:${NC}"
-gsettings set org.gnome.desktop.interface enable-animations true
-echo "✓ Animations enabled but optimized"
-
-# Speed up animation duration (reduce from default)
-gsettings set org.gnome.desktop.interface gtk-enable-animations true
-echo "✓ GTK animations optimized"
+print_info "Configuring animation settings..."
+if safe_run "Enable optimized animations" gsettings set org.gnome.desktop.interface enable-animations true; then
+    safe_run "Optimize GTK animations" gsettings set org.gnome.desktop.interface gtk-enable-animations true
+else
+    print_warning "Could not configure animations - continuing with other tweaks"
+fi
 
 # Disable web search in application launcher (faster search)
-echo ""
-echo -e "${YELLOW}Search Optimization:${NC}"
-gsettings set org.gnome.desktop.search-providers disabled "['org.gnome.Epiphany.desktop']"
-echo "✓ Web search disabled in launcher"
-
-gsettings set org.gnome.desktop.search-providers disable-external true
-echo "✓ External search providers disabled"
-
-# Reduce search delay
-gsettings set org.gnome.desktop.search-providers sort-order "['org.gnome.Nautilus.desktop', 'org.gnome.Calculator.desktop', 'org.gnome.Calendar.desktop']"
-echo "✓ Search results prioritized for local apps"
+print_info "Optimizing application launcher search..."
+safe_run "Disable web search in launcher" gsettings set org.gnome.desktop.search-providers disabled "['org.gnome.Epiphany.desktop']"
+safe_run "Disable external search providers" gsettings set org.gnome.desktop.search-providers disable-external true
+safe_run "Prioritize local app search results" gsettings set org.gnome.desktop.search-providers sort-order "['org.gnome.Nautilus.desktop', 'org.gnome.Calculator.desktop', 'org.gnome.Calendar.desktop']"
 
 # Optimize file manager performance
 echo ""
@@ -61,14 +74,18 @@ echo "✓ Screen dimming disabled during development"
 gsettings set org.gnome.desktop.screensaver idle-activation-enabled false
 echo "✓ Screensaver idle activation disabled"
 
-echo ""
-echo -e "${GREEN}✓ Performance tweaks applied successfully!${NC}"
-echo ""
-echo -e "${BLUE}Performance improvements:${NC}"
-echo "• Faster application search (no web results)"
-echo "• Optimized animations and transitions"
-echo "• Reduced thumbnail generation overhead"
-echo "• Better window management for development"
-echo "• Disabled unnecessary screen dimming/screensaver"
-echo ""
-echo -e "${YELLOW}Note: Changes take effect immediately. Restart if needed.${NC}"
+# Add summary to log
+print_header "Performance Improvements Applied"
+add_manual_task "Open a new application (Super key) to test faster search"
+add_manual_task "Test window tiling with Super+Arrow keys"
+add_next_step "Restart session if animations don't feel faster"
+add_next_step "Run other configuration scripts for complete setup"
+
+print_info "Performance improvements include:"
+print_info "• Faster application search (no web results)"
+print_info "• Optimized animations and transitions" 
+print_info "• Reduced thumbnail generation overhead"
+print_info "• Better window management for development"
+print_info "• Disabled unnecessary screen dimming/screensaver"
+
+finalize_log "Performance Tweaks"

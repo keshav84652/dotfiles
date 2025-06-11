@@ -3,14 +3,29 @@
 # Windows-Style Keyboard Shortcuts for Ubuntu
 # Configures familiar shortcuts for Windows laptop users
 
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+set -e  # Exit on any error
 
-echo -e "${BLUE}⌨️  Configuring Windows-Style Keyboard Shortcuts...${NC}"
-echo ""
+# Source common functions
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/common-functions.sh" ]; then
+    source "$SCRIPT_DIR/common-functions.sh"
+else
+    echo "Error: common-functions.sh not found"
+    exit 1
+fi
+
+# Initialize logging
+init_log
+
+print_header "⌨️ Windows-Style Keyboard Shortcuts Configuration"
+
+# Validate dependencies
+if ! validate_dependencies "keyboard-shortcuts.sh" "gsettings"; then
+    print_error "Missing required dependencies"
+    add_manual_task "Install missing dependencies: gsettings (part of GNOME)"
+    finalize_log "Keyboard Shortcuts"
+    exit 1
+fi
 
 # File Manager - Windows Explorer equivalent
 echo -e "${YELLOW}File Manager Shortcuts:${NC}"
@@ -75,18 +90,28 @@ echo "✓ Shift+Alt+Tab switches windows backward"
 gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
 echo "✓ Super+Tab switches between applications"
 
-echo ""
-echo -e "${GREEN}✓ Windows-style keyboard shortcuts configured!${NC}"
-echo ""
-echo -e "${BLUE}Configured shortcuts:${NC}"
-echo "• Super+E         - File Manager (Windows Explorer)"
-echo "• Super+L         - Lock Screen"
-echo "• Super+D         - Show Desktop"
-echo "• Alt+F4          - Close Window"
-echo "• Ctrl+Shift+Esc  - System Monitor (Task Manager)"
-echo "• Ctrl+Alt+V      - VS Code"
-echo "• Super+Arrow     - Window tiling/maximize"
-echo "• Alt+Tab         - Switch windows"
-echo "• Super+Tab       - Switch applications"
-echo ""
-echo -e "${YELLOW}Note: Some shortcuts may require logout/login to take full effect.${NC}"
+# Add summary to log
+print_header "Keyboard Shortcuts Configured"
+print_success "Windows-style keyboard shortcuts configured successfully!"
+
+add_manual_task "Test Super+E to open file manager"
+add_manual_task "Test Super+L to lock screen"
+add_manual_task "Test Alt+F4 to close windows"
+add_manual_task "Test Ctrl+Shift+Esc for system monitor"
+add_manual_task "Test Super+Arrow keys for window tiling"
+
+add_next_step "Log out and back in if some shortcuts don't work immediately"
+add_next_step "Customize additional shortcuts in Settings > Keyboard if needed"
+
+print_info "Configured shortcuts:"
+print_info "• Super+E         - File Manager (Windows Explorer)"
+print_info "• Super+L         - Lock Screen"
+print_info "• Super+D         - Show Desktop"
+print_info "• Alt+F4          - Close Window"
+print_info "• Ctrl+Shift+Esc  - System Monitor (Task Manager)"
+print_info "• Ctrl+Alt+V      - VS Code"
+print_info "• Super+Arrow     - Window tiling/maximize"
+print_info "• Alt+Tab         - Switch windows"
+print_info "• Super+Tab       - Switch applications"
+
+finalize_log "Keyboard Shortcuts"

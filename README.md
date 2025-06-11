@@ -19,7 +19,9 @@ Personal configuration files for Ubuntu 24.04 development setup with enhanced sh
 - **`.gitignore_global`** - Global gitignore for all projects
 
 ### Installation Scripts
-- **`install.sh`** - Automated installation with backup and shell detection
+- **`install-all.sh`** - Complete automated installation with error handling and reporting
+- **`install.sh`** - Core dotfiles installation with backup and shell detection
+- **`common-functions.sh`** - Shared utilities for error handling and logging
 - **`gnome-settings.sh`** - GNOME desktop configuration (dock, theme, hot corners)
 
 ### Phase 1 - Core Configuration
@@ -44,6 +46,14 @@ Personal configuration files for Ubuntu 24.04 development setup with enhanced sh
 
 ## 🚀 Quick Installation
 
+### Option 1: Complete Automated Installation (Recommended)
+```bash
+git clone https://github.com/keshav84652/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+bash install-all.sh
+```
+
+### Option 2: Manual Phase-by-Phase Installation
 ```bash
 git clone https://github.com/keshav84652/dotfiles.git ~/dotfiles
 cd ~/dotfiles
@@ -66,6 +76,25 @@ bash python-templates.sh     # Python project templates
 bash browser-dev-setup.sh    # Browser developer configuration
 bash docker-basics.sh        # Docker development setup
 ```
+
+## 📊 Installation Reports
+
+Each script generates detailed reports showing:
+- ✅ **Successful operations**
+- ⚠️ **Warnings and issues**
+- ❌ **Errors requiring attention**
+- 📋 **Manual tasks to complete**
+- 🔄 **Next steps**
+
+Reports are saved as `~/dotfiles-install-TIMESTAMP.md` files.
+
+## 🛠️ System Requirements
+
+- **Ubuntu 20.04+** (tested on 22.04 and 24.04)
+- **Internet connection** for downloads
+- **2GB+ free disk space**
+- **Regular user account** (not root)
+- **GNOME desktop environment**
 
 ## 🛠️ What the installer does:
 
