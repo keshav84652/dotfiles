@@ -18,16 +18,53 @@ Personal configuration files for Ubuntu 24.04 development setup with enhanced sh
 - **`vscode-extensions.txt`** - List of recommended VS Code extensions
 - **`.gitignore_global`** - Global gitignore for all projects
 
-### Installation Script
+### Installation Scripts
 - **`install.sh`** - Automated installation with backup and shell detection
-- **`scripts/`** - Utility scripts for updating and backing up dotfiles
+- **`gnome-settings.sh`** - GNOME desktop configuration (dock, theme, hot corners)
+
+### Phase 1 - Core Configuration
+- **`performance-tweaks.sh`** - Faster animations, optimized search
+- **`keyboard-shortcuts.sh`** - Windows-style shortcuts for Ubuntu
+- **`dev-defaults.sh`** - VS Code/Chrome defaults, NPM permissions
+- **`nautilus-config.sh`** - File manager optimized for development
+- **`terminal-config.sh`** - Unlimited scrollback, optimized settings
+- **`dock-cleanup.sh`** - Clean dock with essential development apps
+
+### Phase 2 - Development Environment
+- **`node-global-packages.sh`** - Essential npm packages (nodemon, live-server, etc.)
+- **`python-templates.sh`** - Project templates (Flask, Django, FastAPI, Data Science)
+- **`browser-dev-setup.sh`** - Chrome developer configuration and bookmarks
+- **`docker-basics.sh`** - Docker containers and development databases
+
+### Phase 3 - Advanced (Not Configured Yet)
+- Database cluster setup
+- SSL certificates for local development  
+- Advanced Docker development environments
+- CI/CD pipeline templates
 
 ## 🚀 Quick Installation
 
 ```bash
 git clone https://github.com/keshav84652/dotfiles.git ~/dotfiles
 cd ~/dotfiles
+
+# Core installation
 bash install.sh
+
+# Phase 1: Core system configuration
+bash gnome-settings.sh       # GNOME desktop settings
+bash performance-tweaks.sh   # System performance optimizations
+bash keyboard-shortcuts.sh   # Windows-style keyboard shortcuts
+bash dev-defaults.sh         # Developer application defaults
+bash nautilus-config.sh      # File manager configuration
+bash terminal-config.sh      # Terminal optimization
+bash dock-cleanup.sh         # Clean, minimal dock
+
+# Phase 2: Development environment (optional)
+bash node-global-packages.sh # Node.js development tools
+bash python-templates.sh     # Python project templates
+bash browser-dev-setup.sh    # Browser developer configuration
+bash docker-basics.sh        # Docker development setup
 ```
 
 ## 🛠️ What the installer does:

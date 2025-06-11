@@ -10,7 +10,7 @@
     editor = vim
     autocrlf = input
     pager = less -FRX
-    excludesfile = ~/.gitignore_global
+	excludesfile = /home/keshav/.gitignore_global
 
 [color]
     ui = auto
