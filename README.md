@@ -1,92 +1,93 @@
-# My Dotfiles 🚀
+# Ubuntu 24.04 Development Environment Setup 🚀
 
-Personal configuration files for Ubuntu 24.04 development setup with enhanced shell and editor configurations.
+Complete automated Ubuntu development environment with dotfiles, applications, theming, and GNOME extensions.
 
-## 🎯 What's Included
+## 🚀 Quick Start
 
-### Shell Configurations
-- **`.bashrc`** - Enhanced Bash configuration with useful aliases and prompt
-- **`.zshrc`** - Modern Zsh configuration with Oh My Zsh integration
-- **`.aliases`** - Shared aliases for both Bash and Zsh
+**Fresh Ubuntu 24.04 installation? Run this one command:**
 
-### Editor Configurations  
-- **`.vimrc`** - Vim configuration with syntax highlighting and better defaults
-- **`.config/nvim/init.vim`** - Neovim configuration for modern editing
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/keshav84652/dotfiles/main/setup.sh)
+```
 
-### Development Tools
-- **`.gitconfig`** - Git configuration with colors, aliases, and better defaults
-- **`vscode-extensions.txt`** - List of recommended VS Code extensions
-- **`.gitignore_global`** - Global gitignore for all projects
+**Or clone and run:**
 
-### Installation Scripts
-- **`install-all.sh`** - Complete automated installation with error handling and reporting
-- **`install.sh`** - Core dotfiles installation with backup and shell detection
-- **`common-functions.sh`** - Shared utilities for error handling and logging
-- **`gnome-settings.sh`** - GNOME desktop configuration (dock, theme, hot corners)
-
-### Phase 1 - Core Configuration
-- **`performance-tweaks.sh`** - Faster animations, optimized search
-- **`keyboard-shortcuts.sh`** - Windows-style shortcuts for Ubuntu
-- **`dev-defaults.sh`** - VS Code/Chrome defaults, NPM permissions
-- **`nautilus-config.sh`** - File manager optimized for development
-- **`terminal-config.sh`** - Unlimited scrollback, optimized settings
-- **`dock-cleanup.sh`** - Clean dock with essential development apps
-
-### Phase 2 - Development Environment
-- **`node-global-packages.sh`** - Essential npm packages (nodemon, live-server, etc.)
-- **`python-templates.sh`** - Project templates (Flask, Django, FastAPI, Data Science)
-- **`browser-dev-setup.sh`** - Chrome developer configuration and bookmarks
-- **`docker-basics.sh`** - Docker containers and development databases
-
-### Phase 3 - Advanced (Not Configured Yet)
-- Database cluster setup
-- SSL certificates for local development  
-- Advanced Docker development environments
-- CI/CD pipeline templates
-
-## 🚀 Quick Installation
-
-### Option 1: Complete Automated Installation (Recommended)
 ```bash
 git clone https://github.com/keshav84652/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-bash install-all.sh
+bash setup.sh
 ```
 
-### Option 2: Manual Phase-by-Phase Installation
-```bash
-git clone https://github.com/keshav84652/dotfiles.git ~/dotfiles
-cd ~/dotfiles
+Choose option `1` for fully automated setup, then enter your password when prompted.
 
-# Core installation
-bash install.sh
+## 📦 What Gets Installed
 
-# Phase 1: Core system configuration
-bash gnome-settings.sh       # GNOME desktop settings
-bash performance-tweaks.sh   # System performance optimizations
-bash keyboard-shortcuts.sh   # Windows-style keyboard shortcuts
-bash dev-defaults.sh         # Developer application defaults
-bash nautilus-config.sh      # File manager configuration
-bash terminal-config.sh      # Terminal optimization
-bash dock-cleanup.sh         # Clean, minimal dock
+### Essential Applications
+- **Development Tools**: Python 3.11, Node.js (via NVM), VS Code, Docker
+- **Desktop Apps**: Google Chrome, Discord, Bitwarden, VLC, Flameshot
+- **System Tools**: GNOME Tweaks, CopyQ, Stacer, TeamViewer
 
-# Phase 2: Development environment (optional)
-bash node-global-packages.sh # Node.js development tools
-bash python-templates.sh     # Python project templates
-bash browser-dev-setup.sh    # Browser developer configuration
-bash docker-basics.sh        # Docker development setup
-```
+### Shell & Terminal
+- **Zsh + Oh My Zsh** with plugins (syntax highlighting, autosuggestions)
+- **Enhanced `.bashrc`** and `.zshrc` with useful aliases
+- **Terminal optimization** (unlimited scrollback, better colors)
 
-## 📊 Installation Reports
+### GNOME Desktop Theming
+- **Papirus icon theme** (dark variant)
+- **Modern cursor theme** (Bibata)
+- **GNOME Extensions**: Blur my Shell, Burn My Windows
+- **Dark theme** with blue accent colors
+- **Enhanced dock** (auto-hide, clean layout)
 
-Each script generates detailed reports showing:
-- ✅ **Successful operations**
-- ⚠️ **Warnings and issues**
-- ❌ **Errors requiring attention**
-- 📋 **Manual tasks to complete**
-- 🔄 **Next steps**
+### Development Environment
+- **Git configuration** with SSH keys and better defaults
+- **VS Code extensions** (Python, GitLens, Prettier, Docker, etc.)
+- **Docker setup** with development containers
+- **Performance optimizations** and keyboard shortcuts
 
-Reports are saved as `~/dotfiles-install-TIMESTAMP.md` files.
+## ⏱️ Installation Time
+
+- **Full setup**: ~15-20 minutes
+- **Download size**: ~2-3 GB (applications, themes, extensions)
+- **Disk space**: ~5-6 GB after installation
+
+## 🎛️ Installation Options
+
+The setup script offers two modes:
+
+1. **Fully Automated** (recommended) - Installs everything with sensible defaults
+2. **Interactive** - Choose what to install (development tools, applications, theming, etc.)
+
+## 🔧 What Happens During Installation
+
+1. **System Update** - Updates packages and upgrades system
+2. **Essential Packages** - Installs build tools, curl, wget, git, etc.
+3. **Development Tools** - Python 3.11, Node.js (via NVM), VS Code, Docker
+4. **Desktop Applications** - Chrome, Discord, Bitwarden, media tools
+5. **Shell Setup** - Zsh + Oh My Zsh with plugins and enhanced configs
+6. **GNOME Theming** - Dark theme, Papirus icons, extensions
+7. **System Optimization** - Performance tweaks, keyboard shortcuts
+8. **Dotfiles** - Symlinks shell configs, git setup, VS Code extensions
+
+## ✨ Key Features
+
+### Enhanced Terminal Experience
+- **Zsh with Oh My Zsh** - Modern shell with autocompletion and syntax highlighting
+- **Smart aliases** - `gs` (git status), `ll` (detailed listing), `..` (go up)
+- **NVM integration** - Node.js version management built-in
+- **Git integration** - Branch info in prompt, better git colors
+
+### Beautiful Desktop
+- **Dark theme** with Yaru-blue-dark and Papirus icons
+- **Window animations** - Smooth open/close effects with Burn My Windows
+- **Terminal transparency** - Blur effects with Blur my Shell extension
+- **Auto-hide dock** - Clean, minimal desktop layout
+
+### Developer-Focused
+- **VS Code ready** - Pre-configured with essential extensions
+- **Docker integration** - Development containers and databases
+- **Python 3.11** - Latest Python with pip and venv
+- **Git optimized** - SSH keys, better diffs, useful aliases
 
 ## 🛠️ System Requirements
 
