@@ -592,6 +592,60 @@ if [[ "$SETUP_THEMING" == "y" || "$SETUP_THEMING" == "true" ]]; then
     print_status "Installing coding fonts..."
     sudo apt install -y fonts-firacode
     
+    # Auto-install GNOME extensions
+    print_status "Installing GNOME extensions automatically..."
+    
+    # Function to install GNOME extension
+    install_extension() {
+        local extension_id="$1"
+        local extension_name="$2"
+        
+        print_status "Installing $extension_name..."
+        
+        # Get GNOME Shell version
+        local shell_version=$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1,2)
+        
+        # Create extensions directory
+        mkdir -p "$HOME/.local/share/gnome-shell/extensions"
+        
+        # Download extension
+        local temp_dir="/tmp/gnome-extension-$extension_id"
+        mkdir -p "$temp_dir"
+        
+        # Get extension info and download URL
+        local info_url="https://extensions.gnome.org/extension-info/?pk=$extension_id&shell_version=$shell_version"
+        local download_info=$(curl -s "$info_url" 2>/dev/null || echo "")
+        
+        if echo "$download_info" | grep -q "download_url"; then
+            local download_url=$(echo "$download_info" | grep -o '"download_url":"[^"]*"' | cut -d'"' -f4)
+            local uuid=$(echo "$download_info" | grep -o '"uuid":"[^"]*"' | cut -d'"' -f4)
+            
+            if [ -n "$download_url" ] && [ -n "$uuid" ]; then
+                # Download and extract
+                curl -s "https://extensions.gnome.org$download_url" -o "$temp_dir/extension.zip"
+                
+                # Extract to extensions directory
+                unzip -q "$temp_dir/extension.zip" -d "$HOME/.local/share/gnome-shell/extensions/$uuid/"
+                
+                # Enable extension
+                gnome-extensions enable "$uuid" 2>/dev/null || true
+                
+                print_status "✓ $extension_name installed and enabled"
+            else
+                print_warning "Could not get download info for $extension_name"
+            fi
+        else
+            print_warning "Could not install $extension_name automatically - install manually via Extensions app"
+        fi
+        
+        # Cleanup
+        rm -rf "$temp_dir"
+    }
+    
+    # Install extensions
+    install_extension "3193" "Blur my Shell"
+    install_extension "4679" "Burn My Windows"
+    
     print_status "Theming setup complete. Use GNOME Tweaks for further customization."
 fi
 
