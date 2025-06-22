@@ -1,48 +1,37 @@
 #!/bin/bash
 
-# Ubuntu 24.04 LTS Development Setup Script
-# Enhanced version with Python 3.11, uv, SSH keys, dotfiles, Zsh, Neovim, and VS Code extensions
-# Run with: bash setup.sh (NOT as root)
+# Ubuntu 24.04 LTS Development Environment Setup
+# Clean, consolidated version with reliable error handling
+# Run with: bash setup.sh
 
-set -e
+# Script directory and error logging
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ERROR_LOG="/tmp/dotfiles-errors.log"
+echo "=== Dotfiles Setup Started: $(date) ===" > "$ERROR_LOG"
 
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Function to print colored output
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
+# Output functions
+print_status() { echo -e "${GREEN}[INFO]${NC} $1"; }
+print_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+print_error() { echo -e "${RED}[ERROR]${NC} $1"; }
+print_section() { echo -e "\n${BLUE}=== $1 ===${NC}"; }
 
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-print_section() {
-    echo -e "\n${BLUE}=== $1 ===${NC}"
-}
-
-# Check if running as root (we don't want that)
+# Safety checks
 if [ "$EUID" -eq 0 ]; then
     print_error "Please run this script as a regular user (not root/sudo)"
     print_error "The script will ask for sudo when needed"
     exit 1
 fi
 
-# Function to check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Function to add user to group if not already in it
+# Utility functions
+command_exists() { command -v "$1" >/dev/null 2>&1; }
+is_laptop() { [ -d /proc/acpi/battery ] || [ -d /sys/class/power_supply ] && ls /sys/class/power_supply/ | grep -q BAT; }
 add_user_to_group() {
     if ! groups $USER | grep -q "\b$1\b"; then
         sudo usermod -a -G $1 $USER
@@ -50,79 +39,32 @@ add_user_to_group() {
     fi
 }
 
-# Function to check if system is a laptop
-is_laptop() {
-    [ -d /proc/acpi/battery ] || [ -d /sys/class/power_supply ] && ls /sys/class/power_supply/ | grep -q BAT
-}
-
-# Ask for automation level
-echo -e "${BLUE}Ubuntu 24.04 LTS Enhanced Setup Script${NC}"
-echo "This script will set up your system for development and general desktop use."
+# Installation mode selection
+print_section "Ubuntu Development Environment Setup"
+echo "This script will set up your Ubuntu system for development."
 echo ""
 echo "Choose setup mode:"
-echo "1) Fully automated (recommended settings)"
-echo "2) Interactive (ask for preferences)"
+echo "1) Fully automated (recommended)"
+echo "2) Interactive (choose components)"
 echo ""
 read -p "Enter choice (1 or 2): " SETUP_MODE
 
-# Set defaults based on mode
 if [ "$SETUP_MODE" = "1" ]; then
     INSTALL_DEVELOPMENT=true
     INSTALL_DESKTOP_APPS=true
-    SETUP_THEMING=true
+    SETUP_GNOME=true
     SETUP_OPTIMIZATIONS=true
-    SETUP_FINGERPRINT=true
-    CONFIGURE_SYSTEM=true
     SETUP_SSH=true
     SETUP_DOTFILES=true
     INSTALL_ZSH=true
-    INSTALL_NEOVIM=true
-    INSTALL_VSCODE_EXTENSIONS=true
 else
-    echo ""
-    read -p "Install development tools (Python 3.11, Node.js, Git, VS Code)? (y/n): " -n 1 -r
-    echo ""
-    INSTALL_DEVELOPMENT=${REPLY,,}
-    
-    read -p "Install desktop applications (VLC, Discord, Bitwarden, etc.)? (y/n): " -n 1 -r
-    echo ""
-    INSTALL_DESKTOP_APPS=${REPLY,,}
-    
-    read -p "Setup theming and UI tweaks? (y/n): " -n 1 -r
-    echo ""
-    SETUP_THEMING=${REPLY,,}
-    
-    read -p "Setup system optimizations (TLP, Zram, performance tweaks)? (y/n): " -n 1 -r
-    echo ""
-    SETUP_OPTIMIZATIONS=${REPLY,,}
-    
-    read -p "Setup fingerprint authentication (for ASUS laptops)? (y/n): " -n 1 -r
-    echo ""
-    SETUP_FINGERPRINT=${REPLY,,}
-    
-    read -p "Configure system settings (lid close, window controls, etc.)? (y/n): " -n 1 -r
-    echo ""
-    CONFIGURE_SYSTEM=${REPLY,,}
-    
-    read -p "Setup SSH keys for Git? (y/n): " -n 1 -r
-    echo ""
-    SETUP_SSH=${REPLY,,}
-    
-    read -p "Setup dotfiles? (y/n): " -n 1 -r
-    echo ""
-    SETUP_DOTFILES=${REPLY,,}
-    
-    read -p "Install Zsh + Oh My Zsh (modern shell)? (y/n): " -n 1 -r
-    echo ""
-    INSTALL_ZSH=${REPLY,,}
-    
-    read -p "Install Neovim (modern Vim)? (y/n): " -n 1 -r
-    echo ""
-    INSTALL_NEOVIM=${REPLY,,}
-    
-    read -p "Auto-install VS Code extensions? (y/n): " -n 1 -r
-    echo ""
-    INSTALL_VSCODE_EXTENSIONS=${REPLY,,}
+    read -p "Install development tools (Python 3.11, Node.js, Docker)? (Y/n): " -n 1 -r; echo; INSTALL_DEVELOPMENT=${REPLY:-y}
+    read -p "Install desktop applications (Chrome, Discord, VLC, etc.)? (Y/n): " -n 1 -r; echo; INSTALL_DESKTOP_APPS=${REPLY:-y}
+    read -p "Configure GNOME desktop (theming, shortcuts, touchpad)? (Y/n): " -n 1 -r; echo; SETUP_GNOME=${REPLY:-y}
+    read -p "Apply system optimizations? (Y/n): " -n 1 -r; echo; SETUP_OPTIMIZATIONS=${REPLY:-y}
+    read -p "Setup SSH keys for Git? (Y/n): " -n 1 -r; echo; SETUP_SSH=${REPLY:-y}
+    read -p "Install dotfiles (shell configs)? (Y/n): " -n 1 -r; echo; SETUP_DOTFILES=${REPLY:-y}
+    read -p "Install Zsh + Oh My Zsh? (Y/n): " -n 1 -r; echo; INSTALL_ZSH=${REPLY:-y}
 fi
 
 print_section "System Update"
@@ -130,179 +72,73 @@ print_status "Updating package lists and upgrading system..."
 sudo apt update && sudo apt upgrade -y
 
 print_section "Installing Essential Packages"
-print_status "Installing base development and system tools..."
-
-# Essential packages
-ESSENTIAL_PACKAGES=(
-    curl
-    wget
-    build-essential
-    tree
-    git
-    vim
-    htop
-    unzip
-    ca-certificates
-    gnupg
-    lsb-release
-    software-properties-common
-    dconf-editor
-    preload
-    ubuntu-restricted-extras
-    xclip
-)
-
+ESSENTIAL_PACKAGES=(curl wget build-essential tree git vim htop unzip ca-certificates gnupg 
+                   lsb-release software-properties-common dconf-editor preload ubuntu-restricted-extras xclip)
 sudo apt install -y "${ESSENTIAL_PACKAGES[@]}"
 
-# Zsh Installation
-if [[ "$INSTALL_ZSH" == "y" || "$INSTALL_ZSH" == "true" ]]; then
+# Zsh + Oh My Zsh Installation
+if [[ "$INSTALL_ZSH" =~ ^[Yy]$ ]]; then
     print_section "Installing Zsh + Oh My Zsh"
-    
     if ! command_exists zsh; then
-        print_status "Installing Zsh..."
         sudo apt install -y zsh
     fi
     
-    # Install Oh My Zsh
     if [ ! -d "$HOME/.oh-my-zsh" ]; then
         print_status "Installing Oh My Zsh..."
         RUNZSH=no sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" || true
         
-        # Install useful plugins
-        print_status "Installing Zsh plugins..."
+        # Install plugins
         ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
-        
-        # zsh-autosuggestions
-        if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+        [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] && \
             git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-        fi
-        
-        # zsh-syntax-highlighting
-        if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+        [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] && \
             git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-        fi
         
-        print_status "Oh My Zsh and plugins installed"
-    else
-        print_status "Oh My Zsh already installed"
-    fi
-fi
-
-# Neovim Installation
-if [[ "$INSTALL_NEOVIM" == "y" || "$INSTALL_NEOVIM" == "true" ]]; then
-    print_section "Installing Neovim"
-    
-    if ! command_exists nvim; then
-        print_status "Installing Neovim..."
-        sudo apt install -y neovim
-        
-        # Set up Neovim as default editor
-        sudo update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 60
-        
-        print_status "Neovim installed and set as default editor"
-    else
-        print_status "Neovim already installed"
+        print_status "Zsh and plugins installed"
     fi
 fi
 
 # Development Tools Installation
-if [[ "$INSTALL_DEVELOPMENT" == "y" || "$INSTALL_DEVELOPMENT" == "true" ]]; then
+if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]]; then
     print_section "Installing Development Tools"
     
-    # Python 3.11 + uv
-    print_status "Installing Python 3.11 and uv package manager..."
+    # Python 3.11 + UV
+    print_status "Installing Python 3.11 and UV package manager..."
     sudo add-apt-repository ppa:deadsnakes/ppa -y
     sudo apt update
     sudo apt install -y python3.11 python3.11-venv python3.11-dev python3.11-distutils
-    
-    # Install pip for Python 3.11
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
-    
-    # Install uv (modern Python package manager)
     python3.11 -m pip install --user uv
     
-    # Create python alias (only if not already present)
+    # Add python alias
     BASHRC_ALIAS="alias python=python3.11"
-    if ! grep -qF "$BASHRC_ALIAS" ~/.bashrc; then
-        echo "$BASHRC_ALIAS" >> ~/.bashrc
-        print_status "Added python alias to ~/.bashrc"
-    fi
+    grep -qF "$BASHRC_ALIAS" ~/.bashrc || echo "$BASHRC_ALIAS" >> ~/.bashrc
     
-    # Node.js via NVM (run in user context)
+    # Node.js via NVM
     print_status "Installing Node.js via NVM..."
     if [ ! -d "$HOME/.nvm" ]; then
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-        # Source NVM immediately to make it available in this session
         export NVM_DIR="$HOME/.nvm"
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-        # Install LTS Node.js
-        nvm install --lts
-        nvm use --lts
-        nvm alias default 'lts/*'
-        print_status "Node.js $(node --version) installed via NVM"
+        nvm install --lts && nvm use --lts && nvm alias default 'lts/*'
+        
+        # Install essential global packages
+        print_status "Installing global Node.js packages..."
+        npm install -g yarn pnpm nodemon live-server http-server prettier eslint @vue/cli create-react-app
     fi
     
-    # VS Code
-    print_status "Installing Visual Studio Code..."
-    if ! command_exists code; then
-        wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
-        sudo install -o root -g root -m 644 /tmp/packages.microsoft.gpg /etc/apt/trusted.gpg.d/
-        sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-        sudo apt update
-        sudo apt install -y code
-        rm -f /tmp/packages.microsoft.gpg
-    fi
-    
-    # Docker (basic setup)
+    # Docker
     print_status "Installing Docker..."
     if ! command_exists docker; then
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        sudo apt update
-        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo apt update && sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
         add_user_to_group docker
     fi
 fi
 
-# VS Code Extensions Installation
-if [[ "$INSTALL_VSCODE_EXTENSIONS" == "y" || "$INSTALL_VSCODE_EXTENSIONS" == "true" ]] && command_exists code; then
-    print_section "Installing VS Code Extensions"
-    
-    # Essential extensions
-    VSCODE_EXTENSIONS=(
-        "ms-python.python"
-        "ms-python.vscode-pylance"
-        "eamodio.gitlens"
-        "esbenp.prettier-vscode"
-        "PKief.material-icon-theme"
-        "formulahendry.auto-rename-tag"
-        "ritwickdey.liveserver"
-        "rangav.vscode-thunder-client"
-        "ms-vscode.vscode-json"
-        "yzhang.markdown-all-in-one"
-        "CoenraadS.bracket-pair-colorizer-2"
-        "christian-kohler.path-intellisense"
-        "ms-azuretools.vscode-docker"
-        "dbaeumer.vscode-eslint"
-        "bradlc.vscode-tailwindcss"
-    )
-    
-    print_status "Installing essential VS Code extensions..."
-    for extension in "${VSCODE_EXTENSIONS[@]}"; do
-        if ! code --list-extensions | grep -q "$extension"; then
-            print_status "Installing $extension..."
-            code --install-extension "$extension" --force
-        else
-            print_status "$extension already installed"
-        fi
-    done
-    
-    print_status "VS Code extensions installation complete"
-fi
-
 # Git and SSH Setup
-if [[ "$INSTALL_DEVELOPMENT" == "y" || "$INSTALL_DEVELOPMENT" == "true" ]] || [[ "$SETUP_SSH" == "y" || "$SETUP_SSH" == "true" ]]; then
+if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] || [[ "$SETUP_SSH" =~ ^[Yy]$ ]]; then
     print_section "Git and SSH Configuration"
     
     # Git configuration
@@ -317,8 +153,7 @@ if [[ "$INSTALL_DEVELOPMENT" == "y" || "$INSTALL_DEVELOPMENT" == "true" ]] || [[
     git config --global color.ui auto
     
     # SSH Key Generation
-    if [[ "$SETUP_SSH" == "y" || "$SETUP_SSH" == "true" ]]; then
-        print_status "Setting up SSH keys..."
+    if [[ "$SETUP_SSH" =~ ^[Yy]$ ]]; then
         SSH_KEY="$HOME/.ssh/id_ed25519"
         if [ ! -f "$SSH_KEY" ]; then
             print_status "Generating SSH key..."
@@ -326,407 +161,212 @@ if [[ "$INSTALL_DEVELOPMENT" == "y" || "$INSTALL_DEVELOPMENT" == "true" ]] || [[
             eval "$(ssh-agent -s)"
             ssh-add ~/.ssh/id_ed25519
             
-            print_status "SSH key generated! Public key copied to clipboard:"
-            cat ~/.ssh/id_ed25519.pub
+            print_status "SSH key generated!"
             cat ~/.ssh/id_ed25519.pub | xclip -selection clipboard
-            print_warning "Your public key has been copied to clipboard. Add it to GitHub/GitLab!"
-            read -p "Press Enter after you've added the key to your Git service..."
-        else
-            print_status "SSH key already exists."
+            print_warning "SSH public key copied to clipboard. Add it to GitHub!"
         fi
         
-        # Configure SSH known hosts for common Git services
-        print_status "Configuring SSH known hosts for Git services..."
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
-        
-        # Add GitHub to known hosts
-        if ! grep -q "github.com" ~/.ssh/known_hosts 2>/dev/null; then
-            ssh-keyscan -H github.com >> ~/.ssh/known_hosts 2>/dev/null
-            print_status "Added GitHub to SSH known hosts"
-        fi
-        
-        # Add GitLab to known hosts
-        if ! grep -q "gitlab.com" ~/.ssh/known_hosts 2>/dev/null; then
-            ssh-keyscan -H gitlab.com >> ~/.ssh/known_hosts 2>/dev/null
-            print_status "Added GitLab to SSH known hosts"
-        fi
-        
-        # Add Bitbucket to known hosts
-        if ! grep -q "bitbucket.org" ~/.ssh/known_hosts 2>/dev/null; then
-            ssh-keyscan -H bitbucket.org >> ~/.ssh/known_hosts 2>/dev/null
-            print_status "Added Bitbucket to SSH known hosts"
-        fi
-        
+        # Configure SSH known hosts
+        mkdir -p ~/.ssh && chmod 700 ~/.ssh
+        for host in github.com gitlab.com bitbucket.org; do
+            grep -q "$host" ~/.ssh/known_hosts 2>/dev/null || ssh-keyscan -H "$host" >> ~/.ssh/known_hosts 2>/dev/null
+        done
         chmod 644 ~/.ssh/known_hosts
-        print_status "SSH known hosts configured for seamless Git operations"
     fi
 fi
 
-# Dotfiles Setup
-if [[ "$SETUP_DOTFILES" == "y" || "$SETUP_DOTFILES" == "true" ]]; then
-    print_section "Dotfiles Setup"
-    
-    # Check if dotfiles are already installed
-    if [ -d "$HOME/dotfiles" ]; then
-        print_status "Dotfiles directory already exists. Updating..."
-        cd "$HOME/dotfiles"
-        git pull origin main || true
-        bash install.sh
-        cd
+# Dotfiles Installation
+if [[ "$SETUP_DOTFILES" =~ ^[Yy]$ ]]; then
+    print_section "Installing Dotfiles"
+    if [ -f "$SCRIPT_DIR/install.sh" ]; then
+        bash "$SCRIPT_DIR/install.sh"
     else
-        echo "Do you have a dotfiles repository?"
-        echo "Recommended: https://github.com/keshav84652/dotfiles"
-        read -p "Enter your dotfiles repository URL (or press Enter to skip): " dotfiles_url
-        
-        if [ -n "$dotfiles_url" ]; then
-            print_status "Cloning and installing dotfiles..."
-            git clone "$dotfiles_url" "$HOME/dotfiles"
-            cd "$HOME/dotfiles"
-            
-            if [ -f "install.sh" ]; then
-                print_status "Running dotfiles install script..."
-                bash install.sh
-            else
-                print_warning "No install.sh found in dotfiles repo. Manually linking common files..."
-                for file in .bashrc .zshrc .aliases .gitconfig .vimrc; do
-                    if [ -f "$HOME/dotfiles/$file" ]; then
-                        # Back up existing file if it exists and is not a symlink
-                        if [ -f "$HOME/$file" ] && [ ! -L "$HOME/$file" ]; then
-                            mv "$HOME/$file" "$HOME/${file}.bak"
-                            print_status "Backed up existing $file to ${file}.bak"
-                        fi
-                        ln -sf "$HOME/dotfiles/$file" "$HOME/$file"
-                        print_status "Linked $file"
-                    fi
-                done
-                
-                # Neovim config
-                if [ -f "$HOME/dotfiles/.config/nvim/init.vim" ]; then
-                    mkdir -p "$HOME/.config/nvim"
-                    if [ -f "$HOME/.config/nvim/init.vim" ] && [ ! -L "$HOME/.config/nvim/init.vim" ]; then
-                        mv "$HOME/.config/nvim/init.vim" "$HOME/.config/nvim/init.vim.bak"
-                        print_status "Backed up existing Neovim config"
-                    fi
-                    ln -sf "$HOME/dotfiles/.config/nvim/init.vim" "$HOME/.config/nvim/init.vim"
-                    print_status "Linked Neovim config"
-                fi
-            fi
-            cd
-        else
-            print_status "Skipping dotfiles setup."
-        fi
+        print_warning "install.sh not found - skipping dotfiles installation"
     fi
 fi
 
 # Desktop Applications
-if [[ "$INSTALL_DESKTOP_APPS" == "y" || "$INSTALL_DESKTOP_APPS" == "true" ]]; then
+if [[ "$INSTALL_DESKTOP_APPS" =~ ^[Yy]$ ]]; then
     print_section "Installing Desktop Applications"
     
-    # Flatpak setup
-    print_status "Setting up Flatpak..."
+    # Setup Flatpak
     sudo apt install -y flatpak gnome-software-plugin-flatpak
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
     
-    # Flameshot (screenshot tool)
-    print_status "Installing Flameshot..."
-    sudo apt install -y flameshot
+    # Essential apps via apt
+    sudo apt install -y flameshot copyq vlc
     
-    # CopyQ (clipboard manager)
-    print_status "Installing CopyQ..."
-    sudo apt install -y copyq
+    # Terminal alternatives
+    print_status "Installing alternative terminals..."
+    for terminal in kitty alacritty; do
+        if ! command_exists "$terminal"; then
+            sudo apt install -y "$terminal" 2>/dev/null || print_warning "Failed to install $terminal"
+        fi
+    done
     
-    # VLC
-    print_status "Installing VLC..."
-    sudo apt install -y vlc
+    # Apps via snap
+    for app in discord bitwarden; do
+        snap list | grep -q "$app" 2>/dev/null || sudo snap install "$app"
+    done
     
-    # Stacer (system optimizer)
-    print_status "Installing Stacer..."
-    if ! command_exists stacer; then
-        wget -O /tmp/stacer.deb https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb
-        sudo dpkg -i /tmp/stacer.deb
-        sudo apt-get install -f -y
-        rm -f /tmp/stacer.deb
-    fi
-    
-    # TeamViewer
-    print_status "Installing TeamViewer..."
-    if ! command_exists teamviewer; then
-        wget -O /tmp/teamviewer.deb https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
-        sudo dpkg -i /tmp/teamviewer.deb
-        sudo apt-get install -f -y
-        rm -f /tmp/teamviewer.deb
-    fi
-    
-    # Discord
-    print_status "Installing Discord..."
-    if ! snap list | grep -q discord 2>/dev/null; then
-        sudo snap install discord
-    fi
-    
-    # Bitwarden
-    print_status "Installing Bitwarden..."
-    if ! snap list | grep -q bitwarden 2>/dev/null; then
-        sudo snap install bitwarden
-    fi
-    
-    # Google Chrome (using modern method)
-    print_status "Installing Google Chrome..."
+    # Google Chrome
     if ! command_exists google-chrome; then
-        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/google-chrome-stable_current_amd64.deb
-        sudo apt install -y /tmp/google-chrome-stable_current_amd64.deb
-        rm -f /tmp/google-chrome-stable_current_amd64.deb
+        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -O /tmp/chrome.deb
+        sudo apt install -y /tmp/chrome.deb && rm -f /tmp/chrome.deb
     fi
 fi
 
-# System Optimizations
-if [[ "$SETUP_OPTIMIZATIONS" == "y" || "$SETUP_OPTIMIZATIONS" == "true" ]]; then
-    print_section "Setting up System Optimizations"
+# GNOME Desktop Configuration (Consolidated)
+if [[ "$SETUP_GNOME" =~ ^[Yy]$ ]]; then
+    print_section "Configuring GNOME Desktop"
     
-    # TLP for battery optimization (only on laptops)
+    # Install GNOME packages
+    sudo apt install -y gnome-tweaks gnome-shell-extensions gnome-shell-extension-manager papirus-icon-theme fonts-firacode
+    
+    # Theme and appearance
+    print_status "Applying dark theme and icons..."
+    gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-blue-dark'
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
+    gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+    gsettings set org.gnome.desktop.interface monospace-font-name 'Fira Code 10'
+    
+    # Window management
+    print_status "Configuring window management..."
+    gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
+    gsettings set org.gnome.desktop.interface enable-hot-corners true
+    
+    # Keyboard shortcuts (essential only)
+    print_status "Setting up keyboard shortcuts..."
+    gsettings set org.gnome.settings-daemon.plugins.media-keys home "['<Super>e']"
+    gsettings set org.gnome.settings-daemon.plugins.media-keys screensaver "['<Super>l']"
+    gsettings set org.gnome.desktop.wm.keybindings show-desktop "['<Super>d']"
+    gsettings set org.gnome.desktop.wm.keybindings close "['<Alt>F4']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
+    gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
+    
+    # Window tiling
+    gsettings set org.gnome.desktop.wm.keybindings maximize "['<Super>Up']"
+    gsettings set org.gnome.desktop.wm.keybindings unmaximize "['<Super>Down']"
+    gsettings set org.gnome.mutter.keybindings toggle-tiled-left "['<Super>Left']"
+    gsettings set org.gnome.mutter.keybindings toggle-tiled-right "['<Super>Right']"
+    
+    # Dock configuration (if dash-to-dock exists)
+    if gsettings list-schemas | grep -q "org.gnome.shell.extensions.dash-to-dock"; then
+        print_status "Configuring dock..."
+        gsettings set org.gnome.shell.extensions.dash-to-dock dock-fixed false
+        gsettings set org.gnome.shell.extensions.dash-to-dock show-mounts false
+        gsettings set org.gnome.shell.extensions.dash-to-dock show-trash false
+    fi
+    
+    # Touchpad configuration (FIXED - force traditional scrolling)
     if is_laptop; then
-        print_status "Installing TLP for battery optimization (laptop detected)..."
+        print_status "Configuring touchpad for traditional scrolling..."
+        # Set traditional scrolling multiple times to ensure it sticks
+        for i in {1..3}; do
+            gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
+            sleep 0.5
+        done
+        gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
+        gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
+        gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true
+        
+        # Verify the setting
+        if [ "$(gsettings get org.gnome.desktop.peripherals.touchpad natural-scroll)" = "false" ]; then
+            print_status "✓ Traditional scrolling confirmed (scroll down = content moves down)"
+        else
+            print_warning "Touchpad setting may need manual verification"
+        fi
+    fi
+    
+    # File manager
+    print_status "Configuring file manager..."
+    gsettings set org.gtk.Settings.FileChooser show-hidden true
+    gsettings set org.gnome.nautilus.preferences show-hidden-files true
+    
+    # Privacy settings
+    print_status "Configuring privacy settings..."
+    gsettings set org.gnome.desktop.privacy remember-recent-files false
+    gsettings set org.gnome.desktop.privacy remove-old-temp-files true
+    
+    # Dock favorites
+    gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'firefox.desktop', 'org.gnome.Terminal.desktop', 'google-chrome.desktop']"
+fi
+
+# System Optimizations
+if [[ "$SETUP_OPTIMIZATIONS" =~ ^[Yy]$ ]]; then
+    print_section "Applying System Optimizations"
+    
+    # TLP for laptops
+    if is_laptop; then
+        print_status "Installing TLP for battery optimization..."
         sudo apt install -y tlp tlp-rdw
         sudo systemctl enable tlp
-    else
-        print_status "Desktop detected - skipping TLP battery optimization"
     fi
     
     # Zram for better memory management
-    print_status "Setting up Zram..."
     sudo apt install -y zram-config
     
-    # Firewall setup
-    print_status "Setting up UFW firewall..."
+    # Firewall
+    print_status "Configuring firewall..."
     sudo ufw --force enable
     sudo ufw default deny incoming
     sudo ufw default allow outgoing
     
     # Disable unnecessary services
-    print_status "Optimizing system services..."
     sudo systemctl disable cups-browsed.service 2>/dev/null || true
     sudo systemctl disable ModemManager.service 2>/dev/null || true
 fi
 
-# Fingerprint Authentication
-if [[ "$SETUP_FINGERPRINT" == "y" || "$SETUP_FINGERPRINT" == "true" ]]; then
-    print_section "Setting up Fingerprint Authentication"
-    if is_laptop; then
-        print_status "Installing fingerprint packages (laptop detected)..."
-        sudo apt install -y fprintd libpam-fprintd
-        print_status "Fingerprint setup complete. Run 'fprintd-enroll' to enroll your fingerprint."
-    else
-        print_status "Desktop detected - skipping fingerprint authentication setup"
-    fi
+# Run additional setup scripts
+print_section "Running Additional Configurations"
+
+# Python development setup
+if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] && [ -f "$SCRIPT_DIR/python-templates.sh" ]; then
+    print_status "Setting up Python development environment..."
+    bash "$SCRIPT_DIR/python-templates.sh" >/dev/null 2>&1 || print_warning "Python setup had issues (continuing...)"
 fi
 
-# System Configuration
-if [[ "$CONFIGURE_SYSTEM" == "y" || "$CONFIGURE_SYSTEM" == "true" ]]; then
-    print_section "Configuring System Settings"
-    
-    # Lid close action (don't suspend) - only on laptops
-    if is_laptop; then
-        print_status "Configuring lid close action..."
-        sudo sed -i 's/#HandleLidSwitch=suspend/HandleLidSwitch=ignore/' /etc/systemd/logind.conf
-        sudo sed -i 's/#HandleLidSwitchExternalPower=suspend/HandleLidSwitchExternalPower=ignore/' /etc/systemd/logind.conf
-    fi
-    
-    # Remove unwanted applications from favorites
-    print_status "Cleaning up dock favorites..."
-    gsettings set org.gnome.shell favorite-apps "['org.gnome.Nautilus.desktop', 'firefox.desktop', 'org.gnome.Terminal.desktop', 'code.desktop']"
-    
-    # Configure window buttons (close button accessible)
-    print_status "Configuring window controls..."
-    gsettings set org.gnome.desktop.wm.preferences button-layout 'appmenu:minimize,maximize,close'
-    
-    # Faster animations
-    print_status "Speeding up animations..."
-    gsettings set org.gnome.desktop.interface enable-animations true
-    gsettings set org.gnome.desktop.interface gtk-enable-animations true
-    
-    # Show hidden files in file manager
-    print_status "Configuring file manager..."
-    gsettings set org.gtk.Settings.FileChooser show-hidden true
-    gsettings set org.gnome.nautilus.preferences show-hidden-files true
-    
-    # Better Alt+Tab behavior
-    print_status "Configuring Alt+Tab..."
-    gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Super>Tab']"
-    gsettings set org.gnome.desktop.wm.keybindings switch-windows "['<Alt>Tab']"
-    
-    # Touchpad gestures (if laptop)
-    if is_laptop; then
-        print_status "Enabling touchpad gestures and smart features..."
-        gsettings set org.gnome.desktop.peripherals.touchpad tap-to-click true
-        gsettings set org.gnome.desktop.peripherals.touchpad two-finger-scrolling-enabled true
-        gsettings set org.gnome.desktop.peripherals.touchpad natural-scroll false
-        
-        # Smart features for better laptop experience
-        gsettings set org.gnome.desktop.peripherals.touchpad disable-while-typing true
-        gsettings set org.gnome.desktop.peripherals.touchpad middle-click-emulation true
-        gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag true
-        gsettings set org.gnome.desktop.peripherals.touchpad tap-and-drag-lock false
-        
-        print_status "Touchpad optimized: tap-to-click, traditional scroll, palm rejection, 3-finger middle-click"
-    fi
+# Docker development setup  
+if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] && [ -f "$SCRIPT_DIR/docker-basics.sh" ]; then
+    print_status "Setting up Docker development environment..."
+    bash "$SCRIPT_DIR/docker-basics.sh" >/dev/null 2>&1 || print_warning "Docker setup had issues (continuing...)"
 fi
 
-# Theming Setup
-if [[ "$SETUP_THEMING" == "y" || "$SETUP_THEMING" == "true" ]]; then
-    print_section "Setting up Theming"
-    
-    # Install GNOME Tweaks and extensions
-    print_status "Installing GNOME Tweaks and extensions..."
-    sudo apt install -y gnome-tweaks gnome-shell-extensions gnome-shell-extension-manager chrome-gnome-shell
-    
-    # Install additional themes
-    print_status "Installing additional themes..."
-    sudo apt install -y yaru-theme-gnome yaru-theme-gtk yaru-theme-icon yaru-theme-sound
-    
-    # Set dark theme
-    print_status "Setting up dark theme..."
-    gsettings set org.gnome.desktop.interface gtk-theme 'Yaru-blue-dark'
-    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
-    
-    # Install better fonts for coding
-    print_status "Installing coding fonts..."
-    sudo apt install -y fonts-firacode
-    
-    # Auto-install GNOME extensions
-    print_status "Installing GNOME extensions automatically..."
-    
-    # Function to install GNOME extension
-    install_extension() {
-        local extension_id="$1"
-        local extension_name="$2"
-        
-        print_status "Installing $extension_name..."
-        
-        # Get GNOME Shell version
-        local shell_version=$(gnome-shell --version | cut -d' ' -f3 | cut -d'.' -f1,2)
-        
-        # Create extensions directory
-        mkdir -p "$HOME/.local/share/gnome-shell/extensions"
-        
-        # Download extension
-        local temp_dir="/tmp/gnome-extension-$extension_id"
-        mkdir -p "$temp_dir"
-        
-        # Get extension info and download URL
-        local info_url="https://extensions.gnome.org/extension-info/?pk=$extension_id&shell_version=$shell_version"
-        local download_info=$(curl -s "$info_url" 2>/dev/null || echo "")
-        
-        if echo "$download_info" | grep -q "download_url"; then
-            local download_url=$(echo "$download_info" | grep -o '"download_url":"[^"]*"' | cut -d'"' -f4)
-            local uuid=$(echo "$download_info" | grep -o '"uuid":"[^"]*"' | cut -d'"' -f4)
-            
-            if [ -n "$download_url" ] && [ -n "$uuid" ]; then
-                # Download and extract
-                curl -s "https://extensions.gnome.org$download_url" -o "$temp_dir/extension.zip"
-                
-                # Extract to extensions directory
-                unzip -q "$temp_dir/extension.zip" -d "$HOME/.local/share/gnome-shell/extensions/$uuid/"
-                
-                # Enable extension
-                gnome-extensions enable "$uuid" 2>/dev/null || true
-                
-                print_status "✓ $extension_name installed and enabled"
-            else
-                print_warning "Could not get download info for $extension_name"
-            fi
-        else
-            print_warning "Could not install $extension_name automatically - install manually via Extensions app"
-        fi
-        
-        # Cleanup
-        rm -rf "$temp_dir"
-    }
-    
-    # Install extensions
-    install_extension "3193" "Blur my Shell"
-    install_extension "4679" "Burn My Windows"
-    
-    print_status "Theming setup complete. Use GNOME Tweaks for further customization."
+
+print_section "Final Setup"
+
+# Enable preload
+sudo systemctl enable preload
+
+# Change default shell to Zsh
+if [[ "$INSTALL_ZSH" =~ ^[Yy]$ ]] && command_exists zsh && [ "$SHELL" != "$(which zsh)" ]; then
+    print_status "Changing default shell to Zsh..."
+    chsh -s "$(which zsh)"
+    print_warning "Default shell changed to Zsh. Log out and back in for this to take effect."
 fi
 
 # Cleanup
-print_section "Cleanup"
 print_status "Cleaning up..."
-sudo apt autoremove -y
-sudo apt autoclean
-
-# Final setup
-print_section "Final Setup"
-
-# Set up keyboard shortcuts
-print_status "Setting up keyboard shortcuts..."
-gsettings set org.gnome.settings-daemon.plugins.media-keys screenshot "['<Super>Print']"
-gsettings set org.gnome.settings-daemon.plugins.media-keys area-screenshot "['<Shift><Super>s']"
-
-# Enable preload for faster app startup
-print_status "Enabling preload for faster app startup..."
-sudo systemctl enable preload
-
-# Change default shell to Zsh if installed
-if [[ "$INSTALL_ZSH" == "y" || "$INSTALL_ZSH" == "true" ]] && command_exists zsh; then
-    if [ "$SHELL" != "$(which zsh)" ]; then
-        print_status "Changing default shell to Zsh..."
-        chsh -s $(which zsh)
-        print_warning "Default shell changed to Zsh. You'll need to log out and back in for this to take effect."
-    fi
-fi
+sudo apt autoremove -y && sudo apt autoclean
 
 print_section "Setup Complete!"
-print_status "Your Ubuntu 24.04 LTS system has been configured for development and desktop use."
+print_status "Ubuntu development environment configured successfully!"
 echo ""
-echo -e "${GREEN}Installed applications:${NC}"
-echo "• Development: Git, Python 3.11 + uv, Node.js (via NVM), VS Code, Docker"
-if [[ "$INSTALL_NEOVIM" == "y" || "$INSTALL_NEOVIM" == "true" ]]; then
-    echo "• Editors: Vim, Neovim (with config)"
-fi
-if [[ "$INSTALL_ZSH" == "y" || "$INSTALL_ZSH" == "true" ]]; then
-    echo "• Shell: Zsh + Oh My Zsh with plugins"
-fi
-echo "• Desktop: VLC, Discord, Bitwarden, Chrome, Flameshot, CopyQ, Stacer, TeamViewer"
-if is_laptop; then
-    echo "• System: TLP (battery), Zram, UFW firewall"
-else
-    echo "• System: Zram, UFW firewall"
-fi
-echo "• SSH keys generated and ready for Git services"
-if [[ "$INSTALL_VSCODE_EXTENSIONS" == "y" || "$INSTALL_VSCODE_EXTENSIONS" == "true" ]]; then
-    echo "• VS Code extensions installed automatically"
-fi
+echo -e "${GREEN}Installed:${NC}"
+[[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] && echo "• Development: Python 3.11 + UV, Node.js, Docker"
+[[ "$INSTALL_ZSH" =~ ^[Yy]$ ]] && echo "• Shell: Zsh + Oh My Zsh with plugins"
+[[ "$INSTALL_DESKTOP_APPS" =~ ^[Yy]$ ]] && echo "• Apps: Chrome, Discord, Bitwarden, VLC, Kitty, Alacritty"
+[[ "$SETUP_GNOME" =~ ^[Yy]$ ]] && echo "• Desktop: Dark theme, keyboard shortcuts, traditional touchpad scrolling"
+[[ "$SETUP_SSH" =~ ^[Yy]$ ]] && echo "• SSH: Keys generated and ready for GitHub"
 echo ""
-echo -e "${YELLOW}Important notes:${NC}"
-echo "• Restart your system to apply all changes"
-if [[ "$INSTALL_ZSH" == "y" || "$INSTALL_ZSH" == "true" ]]; then
-    echo "• Log out and back in to use Zsh as default shell, or run 'exec zsh' to try it now"
-fi
-echo "• Run 'source ~/.bashrc' (or ~/.zshrc) or restart terminal for aliases to work"
-echo "• Your SSH public key was copied to clipboard - add it to GitHub/GitLab"
-echo "• Run 'fprintd-enroll' to set up fingerprint authentication (if laptop)"
-echo "• Docker requires logout/login for group permissions"
-echo "• Use GNOME Tweaks for additional customization"
-if is_laptop; then
-    echo "• TLP installed for battery optimization"
-fi
+echo -e "${YELLOW}Next steps:${NC}"
+echo "1. Run: bash post-install-signin.sh    # Open sign-in pages"
+echo "2. Restart your system to apply all changes"
+echo "3. Test: ssh -T git@github.com         # Verify SSH setup"
+echo "4. Create projects: python-dev new myapp web"
 echo ""
-echo -e "${BLUE}Useful commands:${NC}"
-echo "• 'nvm install node' - Install latest Node.js"
-echo "• 'nvm use node' - Switch to installed Node.js version"
-echo "• 'uv pip install package' - Install Python packages with uv"
-if [[ "$INSTALL_NEOVIM" == "y" || "$INSTALL_NEOVIM" == "true" ]]; then
-    echo "• 'nvim' - Launch Neovim editor"
-fi
-if is_laptop; then
-    echo "• 'tlp-stat' - Check TLP battery optimization status"
-fi
-echo "• 'stacer' - Launch system optimizer"
-echo "• 'flameshot gui' - Take screenshot with annotations"
-echo "• 'copyq' - Launch clipboard manager"
-if [[ "$INSTALL_ZSH" == "y" || "$INSTALL_ZSH" == "true" ]]; then
-    echo "• Type command and press TAB for Zsh autocompletion"
-fi
+[ -s "$ERROR_LOG" ] && [ "$(wc -l < "$ERROR_LOG")" -gt 1 ] && \
+    print_warning "Some errors occurred. Check: $ERROR_LOG" || \
+    print_status "No errors encountered during setup!"
 echo ""
-print_warning "Please restart your system to ensure all changes take effect!"
+print_status "Happy coding! 🚀"

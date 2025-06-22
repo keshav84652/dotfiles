@@ -1,6 +1,6 @@
 # Ubuntu 24.04 Development Environment Setup 🚀
 
-Complete automated Ubuntu development environment with dotfiles, applications, theming, and GNOME extensions.
+Clean, reliable Ubuntu development environment setup with essential tools, applications, and GNOME theming.
 
 ## 🚀 Quick Start
 
@@ -23,33 +23,34 @@ Choose option `1` for fully automated setup, then enter your password when promp
 ## 📦 What Gets Installed
 
 ### Essential Applications
-- **Development Tools**: Python 3.11, Node.js (via NVM), VS Code, Docker
-- **Desktop Apps**: Google Chrome, Discord, Bitwarden, VLC, Flameshot
-- **System Tools**: GNOME Tweaks, CopyQ, Stacer, TeamViewer
+- **Development Tools**: Python 3.11 + UV, Node.js (via NVM), Docker
+- **Desktop Apps**: Google Chrome, Discord, Bitwarden, VLC, Flameshot, CopyQ
+- **Terminal Options**: GNOME Terminal (default), Kitty, Alacritty
 
 ### Shell & Terminal
 - **Zsh + Oh My Zsh** with plugins (syntax highlighting, autosuggestions)
-- **Enhanced `.bashrc`** and `.zshrc` with useful aliases
-- **Terminal optimization** (unlimited scrollback, better colors)
+- **Enhanced shell configs** with useful aliases and optimizations
+- **Multiple terminal emulators** for different preferences
 
-### GNOME Desktop Theming
+### GNOME Desktop Configuration
+- **Dark theme** with Yaru-blue styling
 - **Papirus icon theme** (dark variant)
-- **Modern cursor theme** (Bibata)
-- **GNOME Extensions**: Blur my Shell, Burn My Windows
-- **Dark theme** with blue accent colors
-- **Enhanced dock** (auto-hide, clean layout)
+- **Essential keyboard shortcuts** (Super+D, Super+E, etc.)
+- **Traditional touchpad scrolling** (laptop-friendly)
+- **Privacy-focused settings** and clean dock
 
 ### Development Environment
-- **Git configuration** with SSH keys and better defaults
-- **VS Code extensions** (Python, GitLens, Prettier, Docker, etc.)
-- **Docker setup** with development containers
-- **Performance optimizations** and keyboard shortcuts
+- **Git configuration** with SSH keys and seamless authentication
+- **Docker development stack** (PostgreSQL, Redis, Nginx examples)
+- **Python project templates** with UV package manager
+- **Performance optimizations** and developer shortcuts
+- **VS Code Settings Sync ready** (no extensions auto-installed)
 
 ## ⏱️ Installation Time
 
-- **Full setup**: ~15-20 minutes
-- **Download size**: ~2-3 GB (applications, themes, extensions)
-- **Disk space**: ~5-6 GB after installation
+- **Full setup**: ~10-15 minutes
+- **Download size**: ~1.5-2 GB (applications, themes)
+- **Disk space**: ~4-5 GB after installation
 
 ## 🎛️ Installation Options
 
@@ -62,32 +63,37 @@ The setup script offers two modes:
 
 1. **System Update** - Updates packages and upgrades system
 2. **Essential Packages** - Installs build tools, curl, wget, git, etc.
-3. **Development Tools** - Python 3.11, Node.js (via NVM), VS Code, Docker
-4. **Desktop Applications** - Chrome, Discord, Bitwarden, media tools
-5. **Shell Setup** - Zsh + Oh My Zsh with plugins and enhanced configs
-6. **GNOME Theming** - Dark theme, Papirus icons, extensions
-7. **System Optimization** - Performance tweaks, keyboard shortcuts
-8. **Dotfiles** - Symlinks shell configs, git setup, VS Code extensions
+3. **Shell Setup** - Zsh + Oh My Zsh with plugins and enhanced configs
+4. **Development Tools** - Python 3.11 + UV, Node.js (via NVM), Docker
+5. **Desktop Applications** - Chrome, Discord, Bitwarden, VLC, terminals (Kitty, Alacritty)
+6. **Git & SSH Setup** - Git configuration and SSH key generation
+7. **Dotfiles Installation** - Symlinks shell configs and development tools
+8. **GNOME Configuration** - Dark theme, Papirus icons, keyboard shortcuts, traditional touchpad scrolling
+9. **System Optimization** - Performance tweaks, firewall, cleanup
+10. **Post-Install Helper** - Browser sign-in pages via `post-install-signin.sh`
 
 ## ✨ Key Features
 
 ### Enhanced Terminal Experience
+- **Multiple terminal options** - GNOME Terminal, Kitty, Alacritty installed
 - **Zsh with Oh My Zsh** - Modern shell with autocompletion and syntax highlighting
 - **Smart aliases** - `gs` (git status), `ll` (detailed listing), `..` (go up)
 - **NVM integration** - Node.js version management built-in
 - **Git integration** - Branch info in prompt, better git colors
 
 ### Beautiful Desktop
-- **Dark theme** with Yaru-blue-dark and Papirus icons
-- **Window animations** - Smooth open/close effects with Burn My Windows
-- **Terminal transparency** - Blur effects with Blur my Shell extension
+- **Dark theme** with Yaru-blue styling and Papirus icons
+- **Privacy-focused** - Enhanced privacy and security settings
+- **Extension Manager** - Safe extension installation via package manager
 - **Auto-hide dock** - Clean, minimal desktop layout
+- **Traditional scrolling** - Touchpad configured for familiar scroll behavior
 
 ### Developer-Focused
-- **VS Code ready** - Pre-configured with essential extensions
-- **Docker integration** - Development containers and databases
-- **Python 3.11** - Latest Python with pip and venv
-- **Git optimized** - SSH keys, better diffs, useful aliases
+- **VS Code Settings Sync ready** - No extensions auto-installed (user preference)
+- **Docker development stack** - PostgreSQL, Redis, Nginx examples with utilities
+- **Python 3.11 + UV** - Modern Python with UV package manager
+- **Python project templates** - Flask, FastAPI, data science templates
+- **Git optimized** - SSH keys, seamless authentication, useful aliases
 
 ## 🛠️ System Requirements
 
@@ -127,17 +133,19 @@ The setup script offers two modes:
 - **Clipboard integration** between system and editor
 - **Modern defaults** for both Vim and Neovim
 
-## 📦 VS Code Extensions Included
+## 🔄 VS Code Configuration
 
-- **Python** - Python language support
-- **GitLens** - Enhanced Git capabilities
-- **Prettier** - Code formatting
-- **Material Icon Theme** - Beautiful file icons
-- **Auto Rename Tag** - HTML/XML tag renaming
-- **Live Server** - Local development server
-- **Thunder Client** - API testing
-- **Path Intellisense** - Autocomplete file paths
-- **Docker** - Docker support
+**Settings Sync Approach:**
+- **No extensions auto-installed** - Use VS Code Settings Sync instead
+- **Manual extension management** - Install what you need through VS Code
+- **Sync across devices** - Enable Settings Sync in VS Code for consistent setup
+- **Post-install helper** - Opens VS Code for easy sync setup
+
+**Why this approach?**
+- More reliable than automated extension installation
+- Respects user preferences and existing VS Code setup
+- Avoids extension conflicts and installation failures
+- Easier to maintain and customize
 
 ## 🔧 Manual Setup (Alternative)
 
@@ -181,6 +189,25 @@ myip        # Show external IP
 - **Syntax highlighting** for commands
 - **Auto-suggestions** based on history
 
+### Development Utilities
+```bash
+# Python development with UV
+python-dev new myapp web    # Create Flask web app
+python-dev new api api      # Create FastAPI app
+python-dev add requests     # Add Python package
+python-dev test            # Run tests
+python-dev fmt             # Format code
+
+# Docker development
+docker-dev start           # Start dev stack (PostgreSQL, Redis, Nginx)
+docker-dev postgres        # Connect to PostgreSQL
+docker-dev redis           # Connect to Redis
+docker-dev stop            # Stop all services
+
+# Post-installation
+post-install-signin.sh     # Open sign-in pages in browsers
+```
+
 ## 🔄 Keeping Updated
 
 Since the installer creates symlinks, you can update your configs by:
@@ -215,6 +242,30 @@ You can also create manual backups:
 bash scripts/backup-dotfiles.sh
 ```
 
+## 🖥️ Terminal Recommendations
+
+The setup installs multiple terminal emulators. Choose based on your needs:
+
+### **GNOME Terminal** (Default)
+- **Best for**: General use, beginners, system integration
+- **Features**: Good GNOME integration, reliable, easy configuration
+- **Use when**: You want something that "just works"
+
+### **Kitty** 
+- **Best for**: Power users, GPU acceleration enthusiasts
+- **Features**: GPU-accelerated rendering, advanced features, highly configurable
+- **Use when**: You want the fastest rendering and advanced terminal features
+
+### **Alacritty**
+- **Best for**: Minimalists, performance-focused users
+- **Features**: Extremely fast, minimal, YAML configuration
+- **Use when**: You want maximum speed with minimal resource usage
+
+### **Warp** (If Already Installed)
+- **Best for**: Modern developers, AI-assisted workflows
+- **Features**: Built-in AI, modern UI, collaborative features
+- **Note**: Enable "Honor user color scheme" in settings for dark mode
+
 ## 🚀 Works Great With
 
 This dotfiles setup is designed to work perfectly with:
@@ -222,6 +273,42 @@ This dotfiles setup is designed to work perfectly with:
 - **Oh My Zsh** - Enhanced Zsh shell experience
 - **Neovim** - Modern Vim editor
 - **VS Code** - With auto-installed extensions
+
+## 📚 Documentation
+
+After installation, check out these guides:
+
+- **[USAGE.md](./USAGE.md)** - Complete post-installation usage guide
+- **[DOCKER_GUIDE.md](./DOCKER_GUIDE.md)** - Docker development environment guide
+- **[PYTHON_GUIDE.md](./PYTHON_GUIDE.md)** - Python development with UV guide
+
+## 📁 Repository Structure
+
+```
+dotfiles/
+├── setup.sh                 # Main installation script
+├── post-install-signin.sh    # Browser sign-in helper
+├── install.sh               # Dotfiles symlink installer
+├── common-functions.sh      # Shared utility functions
+├── python-templates.sh      # Python project templates
+├── docker-basics.sh         # Docker development setup
+├── browser-dev-setup.sh     # Browser development tools
+├── gnome-theming.sh         # GNOME theme configuration
+└── README.md               # This file
+```
+
+**Clean Architecture:** 7 essential scripts, each with a specific purpose, no redundancy.
+
+## 🛡️ Reliability & Security
+
+This setup prioritizes reliability and maintainability:
+
+- **Error handling** - Continues installation even if individual components fail
+- **Error logging** - All failures logged to `/tmp/dotfiles-errors.log`
+- **Security-hardened** - No unsafe external downloads or script execution
+- **Non-fresh friendly** - Works on existing Ubuntu installations
+- **Simplified architecture** - 7 essential scripts, no redundant functionality
+- **VS Code sync approach** - No automated extensions, use Settings Sync instead
 
 ## 🤝 Contributing
 

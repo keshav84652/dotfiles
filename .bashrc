@@ -71,3 +71,4 @@ bind 'set menu-complete-display-prefix on'
 
 # Use vim keybindings (optional - uncomment if you want)
 # set -o vialias python=python3.11
+export PATH=$PATH:/usr/local/go/bin
