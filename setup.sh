@@ -57,6 +57,10 @@ if [ "$SETUP_MODE" = "1" ]; then
     SETUP_SSH=true
     SETUP_DOTFILES=true
     INSTALL_ZSH=true
+    # Set default Git config values for automated mode
+    GIT_USERNAME="keshav84652"
+    GIT_EMAIL="keshavkasat@outlook.com"
+    AUTOMATED_MODE=true
 else
     read -p "Install development tools (Python 3.11, Node.js, Docker)? (Y/n): " -n 1 -r; echo; INSTALL_DEVELOPMENT=${REPLY:-y}
     read -p "Install desktop applications (Chrome, Discord, VLC, etc.)? (Y/n): " -n 1 -r; echo; INSTALL_DESKTOP_APPS=${REPLY:-y}
@@ -110,9 +114,20 @@ if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]]; then
     curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
     python3.11 -m pip install --user uv
     
-    # Add python alias
-    BASHRC_ALIAS="alias python=python3.11"
-    grep -qF "$BASHRC_ALIAS" ~/.bashrc || echo "$BASHRC_ALIAS" >> ~/.bashrc
+    # Add python alias - more flexible approach
+    # First check if python3.11 is available
+    if command -v python3.11 >/dev/null 2>&1; then
+        PYTHON_VERSION="python3.11"
+    # Fall back to system default Python 3
+    elif command -v python3 >/dev/null 2>&1; then
+        PYTHON_VERSION="python3"
+    fi
+    
+    if [ -n "$PYTHON_VERSION" ]; then
+        BASHRC_ALIAS="alias python=$PYTHON_VERSION"
+        grep -qF "$BASHRC_ALIAS" ~/.bashrc || echo "$BASHRC_ALIAS" >> ~/.bashrc
+        print_status "Set Python alias to use $PYTHON_VERSION"
+    fi
     
     # Node.js via NVM
     print_status "Installing Node.js via NVM..."
@@ -143,8 +158,17 @@ if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] || [[ "$SETUP_SSH" =~ ^[Yy]$ ]]; then
     
     # Git configuration
     print_status "Setting up Git configuration..."
-    read -p "Enter your Git username: " git_username
-    read -p "Enter your Git email: " git_email
+    
+    if [ "$AUTOMATED_MODE" = "true" ]; then
+        # Use default values in automated mode
+        print_status "Using default Git configuration in automated mode"
+        git_username="$GIT_USERNAME"
+        git_email="$GIT_EMAIL"
+    else
+        # Prompt for values in interactive mode
+        read -p "Enter your Git username: " git_username
+        read -p "Enter your Git email: " git_email
+    fi
     
     git config --global user.name "$git_username"
     git config --global user.email "$git_email"
@@ -157,6 +181,7 @@ if [[ "$INSTALL_DEVELOPMENT" =~ ^[Yy]$ ]] || [[ "$SETUP_SSH" =~ ^[Yy]$ ]]; then
         SSH_KEY="$HOME/.ssh/id_ed25519"
         if [ ! -f "$SSH_KEY" ]; then
             print_status "Generating SSH key..."
+            # Use the git_email which is already set correctly for both automated and interactive modes
             ssh-keygen -t ed25519 -C "$git_email" -f ~/.ssh/id_ed25519 -N ''
             eval "$(ssh-agent -s)"
             ssh-add ~/.ssh/id_ed25519

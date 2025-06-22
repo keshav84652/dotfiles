@@ -44,8 +44,13 @@ export NVM_DIR="$HOME/.nvm"
 # Add local bin to PATH
 export PATH="$HOME/.local/bin:$PATH"
 
-# Python aliases
-alias python='python3.11'
+# Python aliases - flexible approach
+# Try to use Python 3.11 if available, otherwise fall back to system Python 3
+if command -v python3.11 &>/dev/null; then
+    alias python='python3.11'
+else
+    alias python='python3'
+fi
 alias pip='pip3'
 
 # Enable programmable completion features
